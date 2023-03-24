@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="500.0" prefWidth="698.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="InterfaceController">
+   <children>
+      <SplitPane dividerPositions="0.5" layoutX="-2.0" orientation="VERTICAL" prefHeight="515.0" prefWidth="708.0">
+        <items>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="247.0" prefWidth="643.0">
+               <children>
+                  <ScrollBar id="freqSlider" fx:id="freqSlider" layoutX="110.0" layoutY="125.0" max="117.0" min="90.0" prefHeight="62.0" prefWidth="266.0" value="90.0" />
+                  <Label id="freqLabel" fx:id="freqLabel" layoutX="243.0" layoutY="88.0" prefHeight="21.0" prefWidth="122.0" textAlignment="CENTER" />
+                  <Label layoutX="147.0" layoutY="88.0" text="Fréquence : " />
+                  <CheckBox id="checkBoxHarmonique" fx:id="checkBoxHarmonique" layoutX="465.0" layoutY="146.0" mnemonicParsing="false" text="2e Harmonique" />
+               </children>
+            </AnchorPane>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="138.0" prefWidth="598.0">
+               <children>
+                  <Button id="faDiezeButton" layoutX="124.0" layoutY="76.0" mnemonicParsing="false" onAction="#setFaDiezeButton" text="Fa#" />
+                  <Button id="fa" layoutX="229.0" layoutY="76.0" mnemonicParsing="false" onAction="#setSolButton" text="Sol" />
+                  <Button id="solDiezeButton" layoutX="334.0" layoutY="76.0" mnemonicParsing="false" onAction="#setSolDiezeButton" text="Sol#" />
+                  <Button id="laButton" layoutX="438.0" layoutY="76.0" mnemonicParsing="false" onAction="#setLaButton" text="La" />
+                  <Button id="laDiezeButton" layoutX="538.0" layoutY="76.0" mnemonicParsing="false" onAction="#setLaDiezeButton" text="La#" />
+                  <Button id="startButton" layoutX="217.0" layoutY="145.0" mnemonicParsing="false" onAction="#demarrerSysteme" text="Démarrer" />
+                  <Button id="stopButton" layoutX="441.0" layoutY="145.0" mnemonicParsing="false" onAction="#arreterSysteme" text="Arrêter" />
+               </children>
+            </AnchorPane>
+        </items>
+      </SplitPane>
+   </children>
+</AnchorPane>
