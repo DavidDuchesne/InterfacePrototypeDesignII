@@ -14,13 +14,12 @@ public class InterfaceController {
     private boolean deuxiemeHarmonique;
     private SerialPort serialPort;
 
-
-    @FXML
-    /*
+    /**
     Initialisation des différents attributs
     Applique un listener à checkBoxHarmonique pour lui permettre de changer le système en mode deuxième harmonique
     Applique un listener à freqSlider pour changer le texte de freqLabel selon la valeur du slider
      */
+    @FXML
     public void initialize() {
         DecimalFormat decimalFormat = new DecimalFormat("#.0");
         freqLabel.setText("90.0 Hz");
@@ -49,10 +48,10 @@ public class InterfaceController {
                 freqLabel.setText(decimalFormat.format(newValue) + " Hz"));        // y a un changement au slider
     }
 
-    /*
+    /**
     Lorsque le bouton démarrer est appuyé, envoye la fréquence commandée vers le port série
     Appele les fonction connexion() et deconnexion()
-    Envoye deux fois la valeur car l'arduino ne reçoit pas la fréquence lors du premier envois
+    Envoye deux fois la valeur car l'arduino ne reçoit pas la fréquence lors du premier envoi
      */
     public void demarrerSysteme() throws IOException, InterruptedException {
         double frequence = freqSlider.getValue();
@@ -63,7 +62,7 @@ public class InterfaceController {
         if (connexion()) {                                              //Si la connexion est réussie,
             serialPort.getOutputStream().write(freqByte.byteValue());   // écrit la valeur de la fréquence en octets
             serialPort.getOutputStream().flush();                       // vers l'arduino deux fois. Attend 1 seconde
-            Thread.sleep(1000);                                    // à chaque envoie. Déconnecte après l'envoie
+            Thread.sleep(1000);                                    // à chaque envoie. Déconnecte après l'envoi
             serialPort.getOutputStream().write(freqByte.byteValue());
             serialPort.getOutputStream().flush();
             System.out.println("Sent number: " + freqByte);
@@ -74,14 +73,19 @@ public class InterfaceController {
         }
     }
 
+    /**
+    Lorsque le bouton arrêter est appuyé, envoye un signal vers l'arduino pour lui indiquer
+    de mettre fin à la vibration.
+    Appelle connexion() et deconnexion()
+    Envoye deux fois le signal car l'arduino ne reçoit pas la fréquence lors du premier envoi
+     */
     public void arreterSysteme() throws IOException, InterruptedException {
 
         byte signal = 10;
 
-        if (connexion()) {
-
-            serialPort.getOutputStream().write(signal);
-            serialPort.getOutputStream().flush();
+        if (connexion()) {                                          // Tente de se connecter à l'arduino. Si la
+            serialPort.getOutputStream().write(signal);             // est réussie, envoye la valeur 10 à l'arduino.
+            serialPort.getOutputStream().flush();                   // Déconnecte après l'envoi.
             Thread.sleep(1000);
             serialPort.getOutputStream().write(signal);
             serialPort.getOutputStream().flush();
@@ -91,6 +95,9 @@ public class InterfaceController {
         }
     }
 
+    /**
+    Modifie la valeur du slider et du label pour correspondre à la fréquence liée à la note selon l'harmonique
+     */
     public void setFaDiezeButton() {
         if (deuxiemeHarmonique) {
             freqSlider.setValue(185);
@@ -146,51 +153,61 @@ public class InterfaceController {
         }
     }
 
+    /**
+     * Analyse chaque port de communication en utilisation lors de l'appel de la fonction et se connecte
+     * à celui relié à l'arduino.
+     * @return true si connexion réussie, false sinon
+     */
     public boolean connexion() {
 
         SerialPort[] serialPorts = SerialPort.getCommPorts();
         String arduino = "Arduino Mega 2560";
         boolean connected = false;
 
+        /*
+        Vérifie si le nom d'une des connexion série contient "Arduion Mega 2560". S'y connecte si oui.
+         */
         for (SerialPort sp :serialPorts) {
-            if (sp.getPortDescription().length() > 16) {
-                if (sp.getPortDescription().substring(0, 17).equals(arduino)) {
+            if (sp.getPortDescription().contains(arduino)) {
                     serialPort = SerialPort.getCommPort(sp.getSystemPortName());
                     serialPort.setComPortParameters(sp.getBaudRate(), 8, 1, 0);
                     serialPort.setComPortTimeouts(SerialPort.TIMEOUT_WRITE_BLOCKING, 0, 0);
                     connected = true;
                     break;
-                }
+
             }
         }
 
-        if (!connected) {
-            System.out.println("Failed to open port");
+        if (!connected) {                                               // S'il n'y avait pas de connexion à un arduino,
+            System.out.println("Failed to open port");                  // affiche une alerte et return false.
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setContentText("Arduino Mega 2560 non connecté");
             alert.show();
             return false;
         }
 
-        if (serialPort.openPort()) {
-            System.out.println("Port open");
+        if (serialPort.openPort()) {                                    // Tente d'ouvrir le port série. Return true
+            System.out.println("Port open");                            // s'il s'y connecte.
             return true;
         }
 
-        System.out.println("Failed to open port");
-        Alert alert = new Alert(Alert.AlertType.ERROR);
+        System.out.println("Failed to open port");                      // Si la connexion au port série a échoué,
+        Alert alert = new Alert(Alert.AlertType.ERROR);                 // affiche une alerte l'indiquant.
         alert.setContentText("Échec de la connexion au port série");
         alert.show();
         return false;
     }
 
+    /**
+     * Ferme la connexion avec l'arduino
+     */
     public void deconnexion() {
-        if (serialPort.closePort()) {
-            System.out.println("Port is closed :)");
+        if (serialPort.closePort()) {                                   // Tente de fermer la connexion. Affiche à la
+            System.out.println("Port is closed :)");                    // si la déconnexion est réussie
         }
 
         else {
-            System.out.println("Failed to close port :(");
-        }
+            System.out.println("Failed to close port :(");              // Affiche à la console si la déconnexion
+        }                                                               // échoue.
     }
 }
