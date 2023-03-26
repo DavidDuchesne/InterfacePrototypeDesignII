@@ -164,9 +164,9 @@ public class InterfaceController {
         String arduino = "Arduino Mega 2560";
         boolean connected = false;
 
-        /*
-        Vérifie si le nom d'une des connexion série contient "Arduion Mega 2560". S'y connecte si oui.
-         */
+
+        //Vérifie si le nom d'une des connexion série contient "Arduion Mega 2560". S'y connecte si oui.
+
         for (SerialPort sp :serialPorts) {
             if (sp.getPortDescription().contains(arduino)) {
                     serialPort = SerialPort.getCommPort(sp.getSystemPortName());

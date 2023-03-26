@@ -12,7 +12,7 @@
         <items>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="247.0" prefWidth="643.0">
                <children>
-                  <ScrollBar id="freqSlider" fx:id="freqSlider" layoutX="110.0" layoutY="125.0" max="117.0" min="90.0" prefHeight="62.0" prefWidth="266.0" value="90.0" />
+                  <ScrollBar id="freqSlider" fx:id="freqSlider" layoutX="110.0" layoutY="125.0" max="120.0" min="90.0" prefHeight="62.0" prefWidth="266.0" value="90.0" />
                   <Label id="freqLabel" fx:id="freqLabel" layoutX="243.0" layoutY="88.0" prefHeight="21.0" prefWidth="122.0" textAlignment="CENTER" />
                   <Label layoutX="147.0" layoutY="88.0" text="Fréquence : " />
                   <CheckBox id="checkBoxHarmonique" fx:id="checkBoxHarmonique" layoutX="466.0" layoutY="88.0" mnemonicParsing="false" text="2e Harmonique" />
