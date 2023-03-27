@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="InterfacePrototype:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/InterfacePrototype_jar</output-path>
+    <root id="archive" name="InterfacePrototype.jar">
+      <element id="module-output" name="InterfacePrototype" />
+      <element id="extracted-dir" path="$USER_HOME$/Desktop/School, la fameuse chanson de Supertramp/Session 4/Design II/Code equipe 10 Design II/jSerialComm-2.9.3.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
