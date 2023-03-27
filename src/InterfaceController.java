@@ -13,6 +13,7 @@ public class InterfaceController {
     public CheckBox checkBoxHarmonique;
     private boolean deuxiemeHarmonique;
     private SerialPort serialPort;
+    private boolean connected;
 
     /**
     Initialisation des différents attributs
@@ -21,9 +22,10 @@ public class InterfaceController {
      */
     @FXML
     public void initialize() {
-        DecimalFormat decimalFormat = new DecimalFormat("#.0");
-        freqLabel.setText("90.0 Hz");
+        DecimalFormat decimalFormat = new DecimalFormat("#.00");
+        freqLabel.setText("90.00 Hz");
         deuxiemeHarmonique = false;
+        connected = false;
 
         checkBoxHarmonique.selectedProperty().addListener((observable, oldValue, newValue) -> {
             double freqInter;
@@ -57,20 +59,20 @@ public class InterfaceController {
         double frequence = freqSlider.getValue();
         System.out.println("Frequence : " + frequence);
 
-        Integer freqByte = (int) (10 * frequence);
+        int freqByte = (int) (frequence);
+        double decimal = (frequence - freqByte) * 100;
 
-        if (connexion()) {                                              //Si la connexion est réussie,
-            serialPort.getOutputStream().write(freqByte.byteValue());   // écrit la valeur de la fréquence en octets
-            serialPort.getOutputStream().flush();                       // vers l'arduino deux fois. Attend 1 seconde
-            Thread.sleep(1000);                                    // à chaque envoie. Déconnecte après l'envoi
-            serialPort.getOutputStream().write(freqByte.byteValue());
-            serialPort.getOutputStream().flush();
-            System.out.println("Sent number: " + freqByte);
-            Thread.sleep(1000);
-
-            deconnexion();
-
+        if (!connected) {
+            connexion();
         }
+        Thread.sleep(1000);
+        serialPort.getOutputStream().write(freqByte);
+        serialPort.getOutputStream().flush();
+        Thread.sleep(1000);
+        serialPort.getOutputStream().write((int) decimal);
+        serialPort.getOutputStream().flush();
+        System.out.println("Sent number: " + freqByte);
+        Thread.sleep(1000);
     }
 
     /**
@@ -81,18 +83,21 @@ public class InterfaceController {
      */
     public void arreterSysteme() throws IOException, InterruptedException {
 
-        byte signal = 10;
+        int signal = 10;
 
-        if (connexion()) {                                          // Tente de se connecter à l'arduino. Si la
-            serialPort.getOutputStream().write(signal);             // est réussie, envoye la valeur 10 à l'arduino.
-            serialPort.getOutputStream().flush();                   // Déconnecte après l'envoi.
-            Thread.sleep(1000);
-            serialPort.getOutputStream().write(signal);
-            serialPort.getOutputStream().flush();
-            Thread.sleep(1000);
-
-            deconnexion();
+        if (!connected) {
+            connexion();
         }
+
+        Thread.sleep(1000);
+        serialPort.getOutputStream().write(signal);
+        serialPort.getOutputStream().flush();
+        Thread.sleep(1000);
+        serialPort.getOutputStream().write(0);
+        serialPort.getOutputStream().flush();
+        Thread.sleep(1000);
+
+        deconnexion();
     }
 
     /**
@@ -101,69 +106,66 @@ public class InterfaceController {
     public void setFaDiezeButton() {
         if (deuxiemeHarmonique) {
             freqSlider.setValue(185);
-            freqLabel.setText("185.0 Hz");
+            freqLabel.setText("185.00 Hz");
         }
         else {
             freqSlider.setValue(92.5);
-            freqLabel.setText("92.5 Hz");
+            freqLabel.setText("92.50 Hz");
         }
     }
 
     public void setSolButton() {
         if (deuxiemeHarmonique) {
             freqSlider.setValue(196);
-            freqLabel.setText("196.0 Hz");
+            freqLabel.setText("196.00 Hz");
         }
         else {
             freqSlider.setValue(98);
-            freqLabel.setText("98.0 Hz");
+            freqLabel.setText("98.00 Hz");
         }
     }
 
     public void setSolDiezeButton() {
         if (deuxiemeHarmonique) {
-            freqSlider.setValue(207.7);
-            freqLabel.setText("207.7 Hz");
+            freqSlider.setValue(207.66);
+            freqLabel.setText("207.66 Hz");
         }
         else {
-            freqSlider.setValue(103.8);
-            freqLabel.setText("103.8 Hz");
+            freqSlider.setValue(103.83);
+            freqLabel.setText("103.83 Hz");
         }
     }
 
     public void setLaButton() {
         if (deuxiemeHarmonique) {
             freqSlider.setValue(220);
-            freqLabel.setText("220.0 Hz");
+            freqLabel.setText("220.00 Hz");
         }
         else {
             freqSlider.setValue(110);
-            freqLabel.setText("110.0 Hz");
+            freqLabel.setText("110.00 Hz");
         }
     }
 
     public void setLaDiezeButton(){
         if (deuxiemeHarmonique) {
-            freqSlider.setValue(233.1);
-            freqLabel.setText("233.1 Hz");
+            freqSlider.setValue(233.08);
+            freqLabel.setText("233.08 Hz");
         }
         else {
-            freqSlider.setValue(116.5);
-            freqLabel.setText("116.5 Hz");
+            freqSlider.setValue(116.54);
+            freqLabel.setText("116.54 Hz");
         }
     }
 
     /**
      * Analyse chaque port de communication en utilisation lors de l'appel de la fonction et se connecte
-     * à celui relié à l'arduino.
-     * @return true si connexion réussie, false sinon
+     * à celui relié à l'arduino. Modifie la valeur de connected a true si la connexion est réussie.
      */
-    public boolean connexion() {
+    private void connexion() {
 
         SerialPort[] serialPorts = SerialPort.getCommPorts();
         String arduino = "Arduino Mega 2560";
-        boolean connected = false;
-
 
         //Vérifie si le nom d'une des connexion série contient "Arduion Mega 2560". S'y connecte si oui.
 
@@ -183,19 +185,19 @@ public class InterfaceController {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setContentText("Arduino Mega 2560 non connecté");
             alert.show();
-            return false;
         }
 
-        if (serialPort.openPort()) {                                    // Tente d'ouvrir le port série. Return true
-            System.out.println("Port open");                            // s'il s'y connecte.
-            return true;
+        else if (serialPort.openPort()) {                                    // Tente d'ouvrir le port série. Return true
+            System.out.println("Port open");                                 // s'il s'y connecte.
+
         }
 
-        System.out.println("Failed to open port");                      // Si la connexion au port série a échoué,
-        Alert alert = new Alert(Alert.AlertType.ERROR);                 // affiche une alerte l'indiquant.
-        alert.setContentText("Échec de la connexion au port série");
-        alert.show();
-        return false;
+        else {
+            System.out.println("Failed to open port");                      // Si la connexion au port série a échoué,
+            Alert alert = new Alert(Alert.AlertType.ERROR);                 // affiche une alerte l'indiquant.
+            alert.setContentText("Échec de la connexion au port série");
+            alert.show();
+        }
     }
 
     /**
@@ -204,6 +206,7 @@ public class InterfaceController {
     public void deconnexion() {
         if (serialPort.closePort()) {                                   // Tente de fermer la connexion. Affiche à la
             System.out.println("Port is closed :)");                    // si la déconnexion est réussie
+            connected = false;
         }
 
         else {
