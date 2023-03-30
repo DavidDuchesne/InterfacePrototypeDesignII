@@ -17,6 +17,7 @@ public class InterfaceController {
 
     /**
     Initialisation des différents attributs
+    Applique un DecimalFormat au label de fréquence pour n'avoir que 2 décimales
     Applique un listener à checkBoxHarmonique pour lui permettre de changer le système en mode deuxième harmonique
     Applique un listener à freqSlider pour changer le texte de freqLabel selon la valeur du slider
      */
@@ -62,13 +63,13 @@ public class InterfaceController {
         int freqByte = (int) (frequence);
         double decimal = (frequence - freqByte) * 100;
 
-        if (!connected) {
-            connexion();
+        if (!connected) {                                               // Si non connecté, tente de se connecter à
+            connexion();                                                // l'arduino.
         }
-        Thread.sleep(1000);
-        serialPort.getOutputStream().write(freqByte);
-        serialPort.getOutputStream().flush();
-        Thread.sleep(1000);
+        Thread.sleep(1000);                                        // Attends 1 seconde pour laisser le temps à
+        serialPort.getOutputStream().write(freqByte);                   // la connexion de s'établir. Envoye ensuite
+        serialPort.getOutputStream().flush();                           // la fréquence et les décimales sous forme
+        Thread.sleep(1000);                                        // de Integer.
         serialPort.getOutputStream().write((int) decimal);
         serialPort.getOutputStream().flush();
         System.out.println("Sent number: " + freqByte);
@@ -79,20 +80,19 @@ public class InterfaceController {
     Lorsque le bouton arrêter est appuyé, envoye un signal vers l'arduino pour lui indiquer
     de mettre fin à la vibration.
     Appelle connexion() et deconnexion()
-    Envoye deux fois le signal car l'arduino ne reçoit pas la fréquence lors du premier envoi
      */
     public void arreterSysteme() throws IOException, InterruptedException {
 
         int signal = 10;
 
-        if (!connected) {
+        if (!connected) {                                               // Se connecte a l'arduino si non connecté
             connexion();
         }
 
-        Thread.sleep(1000);
-        serialPort.getOutputStream().write(signal);
-        serialPort.getOutputStream().flush();
-        Thread.sleep(1000);
+        Thread.sleep(1000);                                        // Délais de 1 sec pour laisser le temps
+        serialPort.getOutputStream().write(signal);                     // à la connexion d'être établie.
+        serialPort.getOutputStream().flush();                           // Envoye 10 et 0 à l'arduino pour lui indiquer
+        Thread.sleep(1000);                                        // d'arrêter le processus.
         serialPort.getOutputStream().write(0);
         serialPort.getOutputStream().flush();
         Thread.sleep(1000);
@@ -180,8 +180,8 @@ public class InterfaceController {
             }
         }
 
-        if (!connected) {                                               // S'il n'y avait pas de connexion à un arduino,
-            System.out.println("Failed to open port");                  // affiche une alerte et return false.
+        if (!connected) {                                                   // S'il n'y avait pas de connexion à un arduino,
+            System.out.println("Failed to open port");                      // affiche une alerte et return false.
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setContentText("Arduino Mega 2560 non connecté");
             alert.show();
