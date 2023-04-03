@@ -2,9 +2,12 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
 import com.fazecast.jSerialComm.SerialPort;
+
+import java.io.PrintWriter;
 import java.lang.*;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 
 public class InterfaceController {
@@ -58,22 +61,18 @@ public class InterfaceController {
      */
     public void demarrerSysteme() throws IOException, InterruptedException {
         double frequence = freqSlider.getValue();
-        System.out.println("Frequence : " + frequence);
 
-        int freqByte = (int) (frequence);
-        double decimal = (frequence - freqByte) * 100;
+        Float freqByte = (float) (frequence);
 
         if (!connected) {                                               // Si non connecté, tente de se connecter à
             connexion();                                                // l'arduino.
         }
-        Thread.sleep(1000);                                        // Attends 1 seconde pour laisser le temps à
-        serialPort.getOutputStream().write(freqByte);                   // la connexion de s'établir. Envoye ensuite
-        serialPort.getOutputStream().flush();                           // la fréquence et les décimales sous forme
-        Thread.sleep(1000);                                        // de Integer.
-        serialPort.getOutputStream().write((int) decimal);
+
+        System.out.println("Sent number: " + freqByte );
+        serialPort.getOutputStream().write(freqByte.toString().getBytes(StandardCharsets.US_ASCII));
         serialPort.getOutputStream().flush();
-        System.out.println("Sent number: " + freqByte);
-        Thread.sleep(1000);
+        serialPort.getOutputStream().write(("\n").getBytes(StandardCharsets.US_ASCII));
+        serialPort.getOutputStream().flush();
     }
 
     /**
@@ -82,20 +81,14 @@ public class InterfaceController {
     Appelle connexion() et deconnexion()
      */
     public void arreterSysteme() throws IOException, InterruptedException {
-
-        int signal = 10;
-
         if (!connected) {                                               // Se connecte a l'arduino si non connecté
             connexion();
         }
 
-        Thread.sleep(1000);                                        // Délais de 1 sec pour laisser le temps
-        serialPort.getOutputStream().write(signal);                     // à la connexion d'être établie.
-        serialPort.getOutputStream().flush();                           // Envoye 10 et 0 à l'arduino pour lui indiquer
-        Thread.sleep(1000);                                        // d'arrêter le processus.
+        serialPort.getOutputStream().write(("10").getBytes(StandardCharsets.US_ASCII));
+        serialPort.getOutputStream().flush();
         serialPort.getOutputStream().write(0);
         serialPort.getOutputStream().flush();
-        Thread.sleep(1000);
 
         deconnexion();
     }
@@ -162,7 +155,7 @@ public class InterfaceController {
      * Analyse chaque port de communication en utilisation lors de l'appel de la fonction et se connecte
      * à celui relié à l'arduino. Modifie la valeur de connected a true si la connexion est réussie.
      */
-    private void connexion() {
+    private void connexion() throws InterruptedException {
 
         SerialPort[] serialPorts = SerialPort.getCommPorts();
         String arduino = "Arduino Mega 2560";
@@ -172,7 +165,7 @@ public class InterfaceController {
         for (SerialPort sp :serialPorts) {
             if (sp.getPortDescription().contains(arduino)) {
                     serialPort = SerialPort.getCommPort(sp.getSystemPortName());
-                    serialPort.setComPortParameters(sp.getBaudRate(), 8, 1, 0);
+                    serialPort.setComPortParameters(57600, 8, 1, 0);
                     serialPort.setComPortTimeouts(SerialPort.TIMEOUT_WRITE_BLOCKING, 0, 0);
                     connected = true;
                     break;
@@ -198,6 +191,8 @@ public class InterfaceController {
             alert.setContentText("Échec de la connexion au port série");
             alert.show();
         }
+
+        Thread.sleep(1000);
     }
 
     /**
