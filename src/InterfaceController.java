@@ -3,7 +3,6 @@ import javafx.scene.control.*;
 
 import com.fazecast.jSerialComm.SerialPort;
 
-import java.io.PrintWriter;
 import java.lang.*;
 
 import java.io.IOException;
@@ -60,16 +59,15 @@ public class InterfaceController {
     Envoye deux fois la valeur car l'arduino ne reçoit pas la fréquence lors du premier envoi
      */
     public void demarrerSysteme() throws IOException, InterruptedException {
-        double frequence = freqSlider.getValue();
+        float freqFloat = (float) (freqSlider.getValue());
 
-        Float freqByte = (float) (frequence);
 
         if (!connected) {                                               // Si non connecté, tente de se connecter à
             connexion();                                                // l'arduino.
         }
 
-        System.out.println("Sent number: " + freqByte );
-        serialPort.getOutputStream().write(freqByte.toString().getBytes(StandardCharsets.US_ASCII));
+        System.out.println("Sent number: " + freqFloat);
+        serialPort.getOutputStream().write(Float.toString(freqFloat).getBytes(StandardCharsets.US_ASCII));
         serialPort.getOutputStream().flush();
         serialPort.getOutputStream().write(("\n").getBytes(StandardCharsets.US_ASCII));
         serialPort.getOutputStream().flush();
